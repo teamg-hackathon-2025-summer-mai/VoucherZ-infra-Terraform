@@ -1,11 +1,7 @@
-# ECSクラスタ / タスク定義 / サービス(Django,Nginx)
-
-# ECSクラスタ
 resource "aws_ecs_cluster" "main" {
   name = "${var.project_prefix}-ecs-cluster"
 }
 
-# ECSタスク実行ロールの定義
 resource "aws_iam_role" "ecs_task_execution" {
   name = "${var.project_prefix}-ecs-task-execution-role"
 
@@ -23,7 +19,6 @@ resource "aws_iam_role" "ecs_task_execution" {
   })
 }
 
-# タスク実行時に必要な操作を許可するIAMポリシー
 resource "aws_iam_policy" "ecs_task_execution" {
   name = "${var.project_prefix}-ecs-task-execution-policy"
 
@@ -47,13 +42,11 @@ resource "aws_iam_policy" "ecs_task_execution" {
   })
 }
 
-# ECS タスク実行ロールにポリシーをアタッチ
 resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
   role = aws_iam_role.ecs_task_execution.name
   policy_arn = aws_iam_policy.ecs_task_execution.arn
 }
 
-# ECS Exec用のタスクロール
 resource "aws_iam_role" "ecs_task" {
   name = "${var.project_prefix}-ecs-task-role"
 
@@ -71,7 +64,6 @@ resource "aws_iam_role" "ecs_task" {
   })
 }
 
-# ECSタスク定義
 resource "aws_ecs_task_definition" "web" {
   family = "${var.project_prefix}-task-definition-web"
   network_mode = "awsvpc"
