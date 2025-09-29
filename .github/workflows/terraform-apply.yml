@@ -1,0 +1,62 @@
+name: Terraform Apply (on main)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  AWS_REGION: ap-northeast-1
+  TF_WORKING_DIR: "infra"
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      - name: Terraform Init (remote backend)
+        run: terraform init -migrate-state -reconfigure
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan (save)
+        run: |
+          terraform plan -out=tfplan.bin
+          terraform show -no-color tfplan.bin > tfplan.txt
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.run_id }}-${{ github.sha }}
+          path: |
+            ${{ env.TF_WORKING_DIR }}/tfplan.bin
+            ${{ env.TF_WORKING_DIR }}/tfplan.txt
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Terraform Apply (from saved plan)
+        run: terraform apply -lock-timeout=5m -auto-approve tfplan.bin
