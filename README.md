@@ -11,7 +11,7 @@
 <img width="1672" height="587" alt="Image" src="https://github.com/user-attachments/assets/8892c568-583f-495b-b441-93460ab74fb0" />
 
 2. 対象のworkflow runが正常に終了し、**数分後**（コンテナが起動後）、\
-   [https://voucherz.jp](https://voucherz.jp) にアクセスし、動作確認。
+   [https://voucherz.site](https://voucherz.site) にアクセスし、動作確認。
 
 
 ### 環境の削除
