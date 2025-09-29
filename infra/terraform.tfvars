@@ -34,3 +34,6 @@ private_subnets = {
     role = "rds"
   }
 }
+
+app_image_tag = "v1.0.0"
+web_image_tag = "v1.0.0"
